@@ -1,0 +1,23 @@
+# Local test only (not used by Railway): big-AGI + Postgres with the template's variables.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localtestonly
+      POSTGRES_DB: railway
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  big-agi:
+    build: .
+    environment:
+      PORT: "8080"
+      BASIC_AUTH_PASSWORD: localtestpassword
+      POSTGRES_PRISMA_URL: postgresql://postgres:localtestonly@postgres:5432/railway
+      POSTGRES_URL_NON_POOLING: postgresql://postgres:localtestonly@postgres:5432/railway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+volumes:
+  pgdata:

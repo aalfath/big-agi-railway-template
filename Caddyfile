@@ -1,0 +1,43 @@
+# Login gateway in front of big-AGI. Values come from the environment at start
+# (see start.sh): PORT, BASIC_AUTH_USERNAME and BASIC_AUTH_HASH (bcrypt).
+{
+	admin off
+	auto_https off
+	persist_config off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:{$PORT:8080} {
+	# Health check for Railway: 200 only when big-AGI's own API answers.
+	@health path /healthz
+	handle @health {
+		rewrite * /api/edge/backend.listCapabilities
+		reverse_proxy 127.0.0.1:3000 {
+			@ok status 2xx
+			handle_response @ok {
+				respond "ok" 200
+			}
+			handle_response {
+				respond "big-AGI is not ready" 503
+			}
+		}
+	}
+
+	# Static files browsers fetch without credentials (PWA manifest and icons).
+	@public path /manifest.json /favicon.ico /apple-touch-icon.png /icons/*
+	handle @public {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# Everything else, including every API route, needs the login.
+	handle {
+		basic_auth {
+			{$BASIC_AUTH_USERNAME} {$BASIC_AUTH_HASH}
+		}
+		reverse_proxy 127.0.0.1:3000 {
+			flush_interval -1
+		}
+	}
+}
