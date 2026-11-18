@@ -9,7 +9,7 @@ This repo is the source of the [Big-AGI Railway template](https://railway.com/de
 | **Big-AGI** | Official image `ghcr.io/enricoros/big-agi:v2.1.3` (pinned by digest), with Caddy 2.11.9 in front as a login gateway | none on disk |
 | **Postgres** | Railway's Postgres, with a volume | shared chat links |
 
-big-AGI has no login of its own. Here only Caddy listens on the public port: every page and every API route asks for a username and password before anything reaches big-AGI, which listens on `127.0.0.1:3000` inside the container. Only `/healthz` (Railway's health check), the PWA manifest and the icons answer without the login.
+Big-AGI has no login of its own. Here only Caddy listens on the public port: every page and every API route asks for a username and password before anything reaches Big-AGI, which listens on `127.0.0.1:3000` inside the container. Only `/healthz` (Railway's health check), the PWA manifest and the icons answer without the login.
 
 ## Variables
 
